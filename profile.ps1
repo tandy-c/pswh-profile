@@ -9,10 +9,37 @@
 
 # Find out if the current user identity is elevated (has admin rights)
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+
 # Set up the window title to show the PowerShell version and whether it's elevated
-$Host.UI.RawUI.WindowTitle = "PowerShell $($PSVersionTable.PSVersion.ToString())"
+$Host.UI.RawUI.WindowTitle = "PowerShell $($psVersion)"
 if ($isAdmin) {
     $Host.UI.RawUI.WindowTitle += " - Admin"
+}
+
+function Get-LatestPowerShellVersion {
+    <#
+    .SYNOPSIS
+        Returns the latest version of PowerShell.
+    .DESCRIPTION
+        Returns the latest version of PowerShell. For example, Get-LatestPowerShellVersion is the latest version of PowerShell.
+    .EXAMPLE
+        Get-LatestPowerShellVersion
+    .OUTPUTS
+        System.String
+    #>
+
+    # Get the latest release information from the GitHub API
+    try {
+        $defaultTimeout = [System.Net.ServicePointManager]::MaxServicePointIdleTime
+        [System.Net.ServicePointManager]::MaxServicePointIdleTime = 10
+        $response = Invoke-RestMethod -Uri 'https://api.github.com/repos/PowerShell/PowerShell/releases/latest' -MaximumRetryCount 0 -TimeoutSec 1
+        [System.Net.ServicePointManager]::MaxServicePointIdleTime = $defaultTimeout
+        return ($response.tag_name).TrimStart('v')
+    }   
+    catch {
+        return $PSVersionTable.PSVersion.ToString()
+    }
 }
 
 function prompt { 
@@ -62,6 +89,28 @@ function ?? {
             return $object
         }
     }
+}
+
+function Get-Ip([switch]$Copy) {
+    <#
+    .SYNOPSIS
+        Returns the current IP address.
+    .DESCRIPTION
+        Returns the current IP address. For example, Get-Ip is the current IP address.
+    .PARAMETER Copy
+        switch: Copies the IP address to the clipboard.
+    .EXAMPLE
+        Get-Ip
+    .OUTPUTS
+        System.String
+    #>
+    $content = Invoke-WebRequest "ifconfig.me/ip" | Select-Object -ExpandProperty Content
+    $ip = $content.Trim()
+    if ($copy) {
+        $ip | Set-Clipboard
+        Write-Output "Copied to clipboard: "
+    }
+    return $ip
 }
 
 function Get-First-Path-If-Exists {
@@ -140,11 +189,11 @@ function Admin {
             Start-Process (Get-Command $args[0]).Definition -Verb RunAs -ArgumentList ($args[1..($args.Length - 1)] -join " ") -WorkingDirectory $PWD
         }
         else {
-            Start-Process $pwrsh -Verb RunAs -WorkingDirectory $PWD -ArgumentList "-NoExit", "-Command & {$args}"
+            Start-Process $pwrsh -Verb RunAs -WorkingDirectory $PWD -ArgumentList "-NoExit", "-NoLogo", "-Command & {$args}"
         }
     }
     else {
-        Start-Process $pwrsh -Verb runAs
+        Start-Process $pwrsh -Verb runAs -ArgumentList "-NoExit", "-NoLogo"
     }
     
 }
@@ -223,13 +272,13 @@ foreach ($kv in $aliasHash.GetEnumerator()) {
     Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)"
 }
 
-# Make it easy to edit this profile once it's installed
+
 function Edit-Profile {
     <#
     .SYNOPSIS
         Opens the profile in the default editor.
     .DESCRIPTION
-        Opens the profile in the default editor.
+        Opens the profile in the default editor. Makes it easy to edit this profile once it's installed
     .EXAMPLE
         Edit-Profile
     .OUTPUTS
@@ -243,10 +292,23 @@ function Edit-Profile {
     }
 }
 
+
+$psVersion = $PSVersionTable.PSVersion.ToString()
+$newestVersion = Get-LatestPowerShellVersion
+
 Clear-Host
-Write-Host "PowerShell $($PSVersionTable.PSVersion.ToString())" -NoNewline
-Write-Host " > custom profile" -ForegroundColor DarkGray
+Write-Host "PowerShell $($psVersion)" -NoNewline
+if ($psVersion -ge ($newestVersion)) {
+    Write-Host " > https://github.com/tandy-c/pswh-profile" -ForegroundColor DarkGray
+}
+else {
+    Write-Host " > PowerShell $newestVersion (stable) is available!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "https://github.com/powershell/powershell/releases" -ForegroundColor DarkGray
+    Write-Host "sudo winget upgrade --id Microsoft.Powershell" -ForegroundColor DarkGray
+}
+
 Write-Host ""
 Write-Host "$(HOSTNAME.EXE) @ $($isAdmin ? "$([char]27)[1;31madmin " : '')$(User)$([char]27)[0m" -ForegroundColor DarkGray
-Write-Host (Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower() -ForegroundColor DarkGray
-Write-Host "" 
+Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
+Write-Host ""

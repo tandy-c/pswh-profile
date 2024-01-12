@@ -4,18 +4,33 @@ custom powershell profile with some useful functions and aliases for my personal
 
 ![screenshot](https://lh3.googleusercontent.com/u/0/drive-viewer/AEYmBYSVLfLeu2NBa9nwZzdc21vmuySMcID2WOv55jEcEQ0nAR1J6Ya72Act4mLHxpcZXrpjAzYb4sQtX3AtihB9o8yl0BkWDQ=w1920-h973)
 
+you may want to add -NoLogo to any instance of powershell.exe
+
 ## installation
 
-1. create a powershell profile by entering this directly into powershell:
+create a powershell profile by entering this directly into powershell, and then you could just do what you want with this `profile.ps1` file:
+
+1. open powershell and enter:
+
+   ```PS1
+   if (!Test-Path $PROFILE.CurrentUserAllHosts) { New-Item $PROFILE.CurrentUserAllHosts -ItemType File -Force }
+   ```
+
+2. open the file with:
+
+   ```PS1
+   notepad $PROFILE.CurrentUserAllHosts
+   ```
+
+   OR:
 
     ```PS1
-    if (!Test-Path $PROFILE.CurrentUserAllHosts) { New-Item $PROFILE.CurrentUserAllHosts -ItemType File -Force }
+    Invoke-Item $PROFILE.CurrentUserAllHosts
     ```
 
-2. open the profile in notepad by entering this directly into powershell:
+## commands
 
-    ```PS1
-    notepad $PROFILE.CurrentUserAllHosts
-    ```
-
-3. copy the contents of the profile.ps1 file in this repository into the profile you just opened in notepad; save and close notepad
+- `Edit-Profile` - opens the profile file (you may need to make `.ps1` files open with your preferred text editor by default)
+- `Admin` or `sudo` - runs the following command as administrator, or opens a new powershell window as administrator if no command is given
+- `Get-IP` - gets the public IP address of the current machine
+- `whereis` - finds the location of a file on path
