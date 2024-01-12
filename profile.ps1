@@ -1,7 +1,4 @@
 <# 
-    PowerShell profile adopted from Tim Sneath <tim@sneath.org>
-    https://gist.github.com/timsneath/19867b12eee7fd5af2ba
-
     This file should be stored in $PROFILE.CurrentUserAllHosts
     if (!Test-Path $PROFILE.CurrentUserAllHosts) { New-Item $PROFILE.CurrentUserAllHosts -ItemType File -Force }
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
@@ -302,7 +299,7 @@ if ($psVersion -ge ($newestVersion)) {
     Write-Host " > https://github.com/tandy-c/pswh-profile" -ForegroundColor DarkGray
 }
 else {
-    Write-Host " > PowerShell $newestVersion (stable) is available!" -ForegroundColor Green
+    Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
     Write-Host ""
     Write-Host "https://github.com/powershell/powershell/releases" -ForegroundColor DarkGray
     Write-Host "sudo winget upgrade --id Microsoft.Powershell" -ForegroundColor DarkGray

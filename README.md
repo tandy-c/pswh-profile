@@ -2,6 +2,8 @@
 
 custom powershell profile with some useful functions and aliases for my personal use. on github for easy access and sharing across work and school computers.
 
+adopted from [Tim Sneath](tim@sneath.org) <https://gist.github.com/timsneath/19867b12eee7fd5af2ba>
+
 ![screenshot](https://lh3.googleusercontent.com/u/0/drive-viewer/AEYmBYSVLfLeu2NBa9nwZzdc21vmuySMcID2WOv55jEcEQ0nAR1J6Ya72Act4mLHxpcZXrpjAzYb4sQtX3AtihB9o8yl0BkWDQ=w1920-h973)
 
 you may want to add -NoLogo to any instance of powershell.exe
