@@ -15,7 +15,7 @@ create a powershell profile by entering this directly into powershell, and then 
 1. open powershell and enter:
 
    ```PS1
-   if (!Test-Path $PROFILE.CurrentUserAllHosts) {
+   if (!(Test-Path $PROFILE.CurrentUserAllHosts)) {
        New-Item $PROFILE.CurrentUserAllHosts -ItemType File -Force 
    }
    ```
