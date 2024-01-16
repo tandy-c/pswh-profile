@@ -323,7 +323,12 @@ function Update-Windows {
         Update-Windows
     .OUTPUTS
         System.null
-    #>  
+    #>      
+    
+    if (!($isAdmin)) {
+        Write-Host('Please run this command as admin!') -Fore Red
+        return
+    }
     Write-Host('Searching Windows-Updates...') -Fore Green
     $UpdateSession = New-Object -ComObject Microsoft.Update.Session
     $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()
