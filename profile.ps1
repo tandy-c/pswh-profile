@@ -233,41 +233,6 @@ function User([switch]$Copy) {
     return $user
 }
 
-$aliasHash = @{
-    "su"      = "Admin";
-    "sudo"    = "Admin";
-    "top"     = "Get-Current-Process";
-    "touch"   = "New-Item";
-
-    # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20";
-
-    "md5"     = "Get-FileHash -Algorithm MD5";
-    "sha1"    = "Get-FileHash -Algorithm SHA1";
-    "sha256"  = "Get-FileHash -Algorithm SHA256";
-    
-    "HKLM:"   = "Set-Location HKLM:";
-    "HKCU:"   = "Set-Location HKCU:";
-    "Env:"    = "Set-Location Env:";
-
-    "dirs"    = "Get-All-ChildItem";
-    
-    "n"       = "$env:windir\notepad.exe";
-    "np"      = "$env:windir\notepad.exe";
-    "python3" = "$env:Programfiles\Python312\python.exe";
-    "sqlite"  = "$env:Programfiles\WinGet\Links\sqlite3.exe";   
-    "whereis" = "Get-CommandPath";
-    "open"    = "Invoke-Item";
-    "isadmin" = "isadmin"
-    # "dir /s /b" = "Get-All-ChildItem";
-}
-
-foreach ($kv in $aliasHash.GetEnumerator()) {
-    # add a check here to say if .exe path or command is valid
-    if ("Set-Location HKCU:".EndsWith(".exe") -and !(Test-Path "Set-Location HKCU:")) {
-        continue
-    }
-    Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)"
-}
 
 
 function Edit-Profile {
@@ -288,6 +253,183 @@ function Edit-Profile {
         Invoke-Item $profile.CurrentUserAllHosts
     }
 }
+
+function Update-Drivers {
+    <#
+    .SYNOPSIS
+        Updates drivers.
+    .DESCRIPTION
+        Updates drivers. For example, Update-Drivers updates drivers.
+    .EXAMPLE
+        Update-Drivers
+    .OUTPUTS
+        System.null
+    #>
+
+    if (!($isAdmin)) {
+        Write-Host('Please run this command as admin!') -Fore Red
+        return
+    }
+
+    $UpdateSvc = New-Object -ComObject Microsoft.Update.ServiceManager
+    $UpdateSvc.AddService2("7971f918-a847-4430-9279-4a52d1efe18d", 7, "")
+    $Session = New-Object -ComObject Microsoft.Update.Session
+    $Searcher = $Session.CreateUpdateSearcher() 
+
+    $Searcher.ServiceID = '7971f918-a847-4430-9279-4a52d1efe18d'
+    $Searcher.SearchScope = 1 # MachineOnly
+    $Searcher.ServerSelection = 3 # Third Party
+          
+    $Criteria = "IsInstalled=0 and Type='Driver'"
+    Write-Host('Searching Driver-Updates...') -Fore Green     
+    $SearchResult = $Searcher.Search($Criteria)          
+    $Updates = $SearchResult.Updates
+    if ([string]::IsNullOrEmpty($Updates)) {
+        Write-Host "No pending driver updates."
+    }
+    else {
+        #Show available Drivers...
+        $Updates | Select-Object Title, DriverModel, DriverVerDate, Driverclass, DriverManufacturer | Format-List
+        $UpdatesToDownload = New-Object -Com Microsoft.Update.UpdateColl
+        $updates | ForEach-Object { $UpdatesToDownload.Add($_) | out-null }
+        Write-Host('Downloading Drivers...')  -Fore Green
+        $UpdateSession = New-Object -Com Microsoft.Update.Session
+        $Downloader = $UpdateSession.CreateUpdateDownloader()
+        $Downloader.Updates = $UpdatesToDownload
+        $Downloader.Download()
+        $UpdatesToInstall = New-Object -Com Microsoft.Update.UpdateColl
+        $updates | ForEach-Object { if ($_.IsDownloaded) { $UpdatesToInstall.Add($_) | out-null } }
+
+        Write-Host('Installing Drivers...')  -Fore Green
+        $Installer = $UpdateSession.CreateUpdateInstaller()
+        $Installer.Updates = $UpdatesToInstall
+        $InstallationResult = $Installer.Install()
+        if ($InstallationResult.RebootRequired) { 
+            Write-Host('Reboot required! Please reboot now.') -Fore Red
+        }
+        else { Write-Host('Done.') -Fore Green }
+        $updateSvc.Services | Where-Object { $_.IsDefaultAUService -eq $false -and $_.ServiceID -eq "7971f918-a847-4430-9279-4a52d1efe18d" } | ForEach-Object { $UpdateSvc.RemoveService($_.ServiceID) }
+    }
+
+}
+
+function Update-Windows {
+    <#
+    .SYNOPSIS
+        Updates Windows.
+    .DESCRIPTION
+        Updates Windows. For example, Update-Windows updates Windows.
+    .EXAMPLE
+        Update-Windows
+    .OUTPUTS
+        System.null
+    #>  
+    Write-Host('Searching Windows-Updates...') -Fore Green
+    $UpdateSession = New-Object -ComObject Microsoft.Update.Session
+    $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()
+    $UpdateSearcher.ServiceID = '7971f918-a847-4430-9279-4a52d1efe18d'
+    $SearchResult = $UpdateSearcher.Search("IsInstalled=0 and Type='Software'")
+    $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl
+    $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl
+    foreach ($Update in $SearchResult.Updates) {
+        if ($Update.IsDownloaded) {
+            $UpdatesToInstall.Add($Update) | Out-Null
+        }
+        else {
+            $UpdatesToDownload.Add($Update) | Out-Null
+        }
+    }
+    if ($UpdatesToDownload.Count -eq 0) {
+        Write-Host "No windows updates available"
+    }
+    else {
+        $Downloader = $UpdateSession.CreateUpdateDownloader()
+        $Downloader.Updates = $UpdatesToDownload
+        $Downloader.Download()
+        $Installer = $UpdateSession.CreateUpdateInstaller()
+        $Installer.Updates = $UpdatesToInstall
+        $InstallationResult = $Installer.Install()
+        if ($InstallationResult.RebootRequired) {
+            Write-Host "Reboot required"
+        }
+        else {
+            Write-Host "Done"
+        }
+    }
+
+}
+
+
+function Update-All {
+    <#
+    .SYNOPSIS
+        Updates apps, Windows and drivers.
+    .DESCRIPTION
+        Updates apps, Windows and drivers. For example, Update-All updates Windows and drivers.
+    .EXAMPLE
+        Update-All
+    .OUTPUTS
+        System.null
+    #>
+
+    winget.exe upgrade --all
+    Update-Drivers
+    Update-Windows
+}
+
+Function isadmin {
+    <#
+    .SYNOPSIS
+        Returns whether the current user is admin.
+    .DESCRIPTION
+        Returns whether the current user is admin. For example, isadmin is whether the current user is admin.
+    .EXAMPLE
+        isadmin
+    .OUTPUTS
+        System.String
+    #>
+    $isAdmin
+}
+
+
+$aliasHash = @{
+    "su"              = "Admin";
+    "sudo"            = "Admin";
+    "top"             = "Get-Current-Process";
+    "touch"           = "New-Item";
+
+    # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20";
+
+    "md5"             = "Get-FileHash -Algorithm MD5";
+    "sha1"            = "Get-FileHash -Algorithm SHA1";
+    "sha256"          = "Get-FileHash -Algorithm SHA256";
+    
+    "HKLM:"           = "Set-Location HKLM:";
+    "HKCU:"           = "Set-Location HKCU:";
+    "Env:"            = "Set-Location Env:";
+
+    "dirs"            = "Get-All-ChildItem";
+    
+    "n"               = "$env:windir\notepad.exe";
+    "np"              = "$env:windir\notepad.exe";
+    "python3"         = "$env:Programfiles\Python312\python.exe";
+    "sqlite"          = "$env:Programfiles\WinGet\Links\sqlite3.exe";   
+    "whereis"         = "Get-CommandPath";
+    "open"            = "Invoke-Item";
+    "Upgrade-Drivers" = "Update-Drivers";
+    "Upgrade-Windows" = "Update-Windows";
+    # "dir /s /b" = "Get-All-ChildItem";
+}
+
+foreach ($kv in $aliasHash.GetEnumerator()) {
+    # add a check here to say if .exe path or command is valid
+    if ("Set-Location HKCU:".EndsWith(".exe") -and !(Test-Path "Set-Location HKCU:")) {
+        continue
+    }
+    Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)"
+}
+
+
 
 
 $psVersion = $PSVersionTable.PSVersion.ToString()

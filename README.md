@@ -38,3 +38,4 @@ create a powershell profile by entering this directly into powershell, and then 
 - `Admin` or `sudo` - runs the following command as administrator, or opens a new powershell window as administrator if no command is given
 - `Get-IP` - gets the public IP address of the current machine
 - `whereis` - finds the location of a file on path
+- `Update-Drivers`, `Update-Windows`, `Update-All` - updates drivers, windows, or both + winget apps
