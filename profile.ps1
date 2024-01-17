@@ -330,38 +330,9 @@ function Update-Windows {
         return
     }
     Write-Host('Searching Windows-Updates...') -Fore Green
-    $UpdateSession = New-Object -ComObject Microsoft.Update.Session
-    $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()
-    $UpdateSearcher.ServiceID = '7971f918-a847-4430-9279-4a52d1efe18d'
-    $SearchResult = $UpdateSearcher.Search("IsInstalled=0 and Type='Software'")
-    $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl
-    $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl
-    foreach ($Update in $SearchResult.Updates) {
-        if ($Update.IsDownloaded) {
-            $UpdatesToInstall.Add($Update) | Out-Null
-        }
-        else {
-            $UpdatesToDownload.Add($Update) | Out-Null
-        }
-    }
-    if ($UpdatesToDownload.Count -eq 0) {
-        Write-Host "No windows updates available"
-    }
-    else {
-        $Downloader = $UpdateSession.CreateUpdateDownloader()
-        $Downloader.Updates = $UpdatesToDownload
-        $Downloader.Download()
-        $Installer = $UpdateSession.CreateUpdateInstaller()
-        $Installer.Updates = $UpdatesToInstall
-        $InstallationResult = $Installer.Install()
-        if ($InstallationResult.RebootRequired) {
-            Write-Host "Reboot required"
-        }
-        else {
-            Write-Host "Done"
-        }
-    }
-
+    Install-Module PSWindowsUpdate -Force
+    Import-Module PSWindowsUpdate
+    Get-WindowsUpdate -Install -AcceptAll -AutoReboot | Out-Null
 }
 
 
