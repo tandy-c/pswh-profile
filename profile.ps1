@@ -397,7 +397,7 @@ $aliasHash = @{
     "Upgrade-Drivers" = "Update-Drivers";
     "Upgrade-Windows" = "Update-Windows";
 
-    "copy"            = "Set-Clipboard";
+    # "copy"            = "Set-Clipboard";
     # "dir /s /b" = "Get-All-ChildItem";
 }
 
