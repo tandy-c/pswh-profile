@@ -313,6 +313,24 @@ function Update-Drivers {
 
 }
 
+function Largest {
+    <#
+    .SYNOPSIS
+        Returns the largest file in the current directory.
+    .DESCRIPTION
+        Returns the largest file in the current directory. For example, Largest is the largest file in the current directory.
+    .EXAMPLE
+        Largest
+    .OUTPUTS
+        System.String
+    #>
+    Get-ChildItem -re -in * |
+    Where-Object { -not $_.PSIsContainer } |
+    Sort-Object Length -descending |
+    Select-Object -first 10
+
+}
+
 function Update-Windows {
     <#
     .SYNOPSIS
