@@ -402,6 +402,8 @@ $aliasHash = @{
     "sudo"            = "Admin";
     "top"             = "Get-Current-Process";
     "touch"           = "New-Item";
+    "which"           = "Get-CommandPath";
+    "whoami"          = "User";
 
     # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20";
 
@@ -423,6 +425,8 @@ $aliasHash = @{
     "open"            = "Invoke-Item";
     "Upgrade-Drivers" = "Update-Drivers";
     "Upgrade-Windows" = "Update-Windows";
+
+    "copy"            = "Set-Clipboard";
     # "dir /s /b" = "Get-All-ChildItem";
 }
 
