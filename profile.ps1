@@ -195,6 +195,9 @@ function Admin {
     
 }
 
+
+# Start-Process net -verb RunAs -ArgumentList "localgroup Administrators $currentUser /add"
+
 function Get-CommandPath([string]$Command, [switch]$copy) {
     <#
     .SYNOPSIS
@@ -254,17 +257,26 @@ function Edit-Profile {
     }
 }
 
-function Update-Drivers {
+function Update-Drivers([switch] $restart, [switch] $force) {
     <#
     .SYNOPSIS
         Updates drivers.
     .DESCRIPTION
         Updates drivers. For example, Update-Drivers updates drivers.
+    .PARAMETER restart
+        switch: Restarts the computer after updating.
+    .PARAMETER force
+        switch: Forces the update.
     .EXAMPLE
         Update-Drivers
     .OUTPUTS
         System.null
     #>
+
+    if ($force -and !($isAdmin)) {
+        Admin "Update-Drivers"
+        return
+    }
 
     if (!($isAdmin)) {
         Write-Host('Please run this command as admin!') -Fore Red
@@ -306,10 +318,15 @@ function Update-Drivers {
         $InstallationResult = $Installer.Install()
         if ($InstallationResult.RebootRequired) { 
             Write-Host('Reboot required! Please reboot now.') -Fore Red
+            if ($restart -or $force) {
+                Restart-Computer
+            }
         }
         else { Write-Host('Done.') -Fore Green }
         $updateSvc.Services | Where-Object { $_.IsDefaultAUService -eq $false -and $_.ServiceID -eq "7971f918-a847-4430-9279-4a52d1efe18d" } | ForEach-Object { $UpdateSvc.RemoveService($_.ServiceID) }
     }
+
+    
 
 }
 
@@ -331,26 +348,44 @@ function Largest {
 
 }
 
-function Update-Windows {
+function Update-Windows([switch] $restart, [switch] $force) {
     <#
     .SYNOPSIS
         Updates Windows.
     .DESCRIPTION
         Updates Windows. For example, Update-Windows updates Windows.
+    .PARAMETER restart
+        switch: Restarts the computer after updating.
+    .PARAMETER force
+        switch: Forces the update.
     .EXAMPLE
         Update-Windows
     .OUTPUTS
         System.null
     #>      
     
+    # Parameter help description
+
+
+    if ($force -and !($isAdmin)) {
+        Admin "Update-Windows"
+        return
+    }
     if (!($isAdmin)) {
-        Write-Host('Please run this command as admin!') -Fore Red
+        Write-Host('Please run this command as admin! (or use the -Force switch)') -Fore Red
         return
     }
     Write-Host('Searching Windows-Updates...') -Fore Green
-    Install-Module PSWindowsUpdate -Force
+    
     Import-Module PSWindowsUpdate
-    Get-WindowsUpdate -Install -AcceptAll -AutoReboot | Out-Null
+    
+    if ($restart -or $force) {
+        Get-WindowsUpdate -Install -AcceptAll -AutoReboot | Out-Null
+    } 
+    else {
+        Get-WindowsUpdate -Install -AcceptAll | Out-Null
+    }
+    
 }
 
 
@@ -412,8 +447,13 @@ $aliasHash = @{
     "sqlite"          = "$env:Programfiles\WinGet\Links\sqlite3.exe";   
     "whereis"         = "Get-CommandPath";
     "open"            = "Invoke-Item";
+    "run"             = "Invoke-Item";
+    "exec"            = "Invoke-Item";
+    # "exit"            = "Exit-PSSession";
+    
     "Upgrade-Drivers" = "Update-Drivers";
     "Upgrade-Windows" = "Update-Windows";
+    
 
     # "copy"            = "Set-Clipboard";
     # "dir /s /b" = "Get-All-ChildItem";
@@ -449,3 +489,8 @@ Write-Host ""
 Write-Host "$(HOSTNAME.EXE) @ $($isAdmin ? "$([char]27)[1;31madmin " : '')$(User)$([char]27)[0m" -ForegroundColor DarkGray
 Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
 Write-Host ""
+
+Remove-Variable psVersion
+Remove-Variable newestVersion
+
+# sudo Update-Windows
