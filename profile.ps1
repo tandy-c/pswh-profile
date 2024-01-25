@@ -8,11 +8,7 @@
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 
-# Set up the window title to show the PowerShell version and whether it's elevated
-$Host.UI.RawUI.WindowTitle = "PowerShell $($psVersion)"
-if ($isAdmin) {
-    $Host.UI.RawUI.WindowTitle += " - Admin"
-}
+
 
 function Get-LatestPowerShellVersion {
     <#
@@ -39,25 +35,7 @@ function Get-LatestPowerShellVersion {
     }
 }
 
-function prompt { 
-    <#
-    .SYNOPSIS
-        Sets up the command prompt.
-    .DESCRIPTION
-        Sets up the command prompt. For example, prompt is the command prompt.
-    .EXAMPLE
-        prompt
-    .OUTPUTS
-        System.String
-    #>
-    if ($isAdmin) {
-        $ESC = [char]27
-        "$ESC[1;31mPS $ESC[0m$($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1))"
-    }
-    else {
-        "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "  
-    }
-}
+
 
 function ?? {
     <#
@@ -421,76 +399,106 @@ Function isadmin {
 }
 
 
-$aliasHash = @{
-    "su"              = "Admin";
-    "sudo"            = "Admin";
-    "top"             = "Get-Current-Process";
-    "touch"           = "New-Item";
-    "which"           = "Get-CommandPath";
-    "whoami"          = "User";
+function _Main {
+    <#
+    .SYNOPSIS
+        Main initializer function for the profile.
+    .DESCRIPTION
+        Main initializer function for the profile; sets aliases, etc.
+    #>
 
-    # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20";
-
-    "md5"             = "Get-FileHash -Algorithm MD5";
-    "sha1"            = "Get-FileHash -Algorithm SHA1";
-    "sha256"          = "Get-FileHash -Algorithm SHA256";
-    
-    "HKLM:"           = "Set-Location HKLM:";
-    "HKCU:"           = "Set-Location HKCU:";
-    "Env:"            = "Set-Location Env:";
-
-    "dirs"            = "Get-All-ChildItem";
-    
-    "n"               = "$env:windir\notepad.exe";
-    "np"              = "$env:windir\notepad.exe";
-    "python3"         = "$env:Programfiles\Python312\python.exe";
-    "sqlite"          = "$env:Programfiles\WinGet\Links\sqlite3.exe";   
-    "whereis"         = "Get-CommandPath";
-    "open"            = "Invoke-Item";
-    "run"             = "Invoke-Item";
-    "exec"            = "Invoke-Item";
-    # "exit"            = "Exit-PSSession";
-    
-    "Upgrade-Drivers" = "Update-Drivers";
-    "Upgrade-Windows" = "Update-Windows";
-    
-
-    # "copy"            = "Set-Clipboard";
-    # "dir /s /b" = "Get-All-ChildItem";
-}
-
-foreach ($kv in $aliasHash.GetEnumerator()) {
-    # add a check here to say if .exe path or command is valid
-    if ("Set-Location HKCU:".EndsWith(".exe") -and !(Test-Path "Set-Location HKCU:")) {
-        continue
+    # Set up the window title to show the PowerShell version and whether it's elevated
+    $Host.UI.RawUI.WindowTitle = "PowerShell $($psVersion)"
+    if ($isAdmin) {
+        $Host.UI.RawUI.WindowTitle += " - Admin"
     }
-    Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)"
-}
 
 
+    $aliasHash = @{
+        "su"              = "Admin";
+        "sudo"            = "Admin";
+        "top"             = "Get-Current-Process";
+        "touch"           = "New-Item";
+        "which"           = "Get-CommandPath";
+        "whoami"          = "User";
+    
+        # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20";
+    
+        "md5"             = "Get-FileHash -Algorithm MD5";
+        "sha1"            = "Get-FileHash -Algorithm SHA1";
+        "sha256"          = "Get-FileHash -Algorithm SHA256";
+        
+        "HKLM:"           = "Set-Location HKLM:";
+        "HKCU:"           = "Set-Location HKCU:";
+        "Env:"            = "Set-Location Env:";
+    
+        "dirs"            = "Get-All-ChildItem";
+        
+        "n"               = "$env:windir\notepad.exe";
+        "np"              = "$env:windir\notepad.exe";
+        "python3"         = "$env:Programfiles\Python312\python.exe";
+        "sqlite"          = "$env:Programfiles\WinGet\Links\sqlite3.exe";   
+        "whereis"         = "Get-CommandPath";
+        "open"            = "Invoke-Item";
+        "run"             = "Invoke-Item";
+        "exec"            = "Invoke-Item";
+        # "exit"            = "Exit-PSSession";
+        
+        "Upgrade-Drivers" = "Update-Drivers";
+        "Upgrade-Windows" = "Update-Windows";
+        
+    
+        # "copy"            = "Set-Clipboard";
+        # "dir /s /b" = "Get-All-ChildItem";
+    }
+    
+    foreach ($kv in $aliasHash.GetEnumerator()) {
+        # add a check here to say if .exe path or command is valid
+        if ("Set-Location HKCU:".EndsWith(".exe") -and !(Test-Path "Set-Location HKCU:")) {
+            continue
+        }
+        Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)"
+    }
 
+    $psVersion = $PSVersionTable.PSVersion.ToString()
+    $newestVersion = Get-LatestPowerShellVersion
 
-$psVersion = $PSVersionTable.PSVersion.ToString()
-$newestVersion = Get-LatestPowerShellVersion
+    Clear-Host
+    Write-Host "PowerShell $($psVersion)" -NoNewline
+    if ($psVersion -ge ($newestVersion)) {
+        Write-Host " > https://github.com/tandy-c/pswh-profile" -ForegroundColor DarkGray
+    }
+    else {
+        Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "https://github.com/powershell/powershell/releases" -ForegroundColor DarkGray
+        Write-Host "sudo winget upgrade --id Microsoft.Powershell" -ForegroundColor DarkGray
+    }
 
-Clear-Host
-Write-Host "PowerShell $($psVersion)" -NoNewline
-if ($psVersion -ge ($newestVersion)) {
-    Write-Host " > https://github.com/tandy-c/pswh-profile" -ForegroundColor DarkGray
-}
-else {
-    Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
     Write-Host ""
-    Write-Host "https://github.com/powershell/powershell/releases" -ForegroundColor DarkGray
-    Write-Host "sudo winget upgrade --id Microsoft.Powershell" -ForegroundColor DarkGray
+    Write-Host "$(HOSTNAME.EXE) @ $($isAdmin ? "$([char]27)[1;31madmin " : '')$(User)$([char]27)[0m" -ForegroundColor DarkGray
+    Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
+    Write-Host ""
 }
 
-Write-Host ""
-Write-Host "$(HOSTNAME.EXE) @ $($isAdmin ? "$([char]27)[1;31madmin " : '')$(User)$([char]27)[0m" -ForegroundColor DarkGray
-Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
-Write-Host ""
+function prompt { 
+    <#
+    .SYNOPSIS
+        Sets up the command prompt.
+    .DESCRIPTION
+        Sets up the command prompt. For example, prompt is the command prompt.
+    .EXAMPLE
+        prompt
+    .OUTPUTS
+        System.String
+    #>
+    if ($isAdmin) {
+        $ESC = [char]27
+        "$ESC[1;31mPS $ESC[0m$($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1))"
+    }
+    else {
+        "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "  
+    }
+}
 
-Remove-Variable psVersion
-Remove-Variable newestVersion
-
-# sudo Update-Windows
+_Main 
