@@ -7,7 +7,19 @@
 # Find out if the current user identity is elevated (has admin rights)
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
-
+function UnixTimeStamp {
+    <#
+    .SYNOPSIS
+        Returns the current unix timestamp.
+    .DESCRIPTION
+        Returns the current unix timestamp. For example, Unix-Timestamp is the current unix timestamp.
+    .EXAMPLE
+        Unix-Timestamp
+    .OUTPUTS
+        System.String
+    #>
+    return [int64](Get-Date -UFormat %s -Millisecond 0)
+}
 
 
 function Get-LatestPowerShellVersion {
@@ -499,7 +511,6 @@ function _Main {
     Write-Host ""
     Write-Host "$(HOSTNAME.EXE) @ $($isAdmin ? "$([char]27)[1;31madmin " : '')$(User)$([char]27)[0m" -ForegroundColor DarkGray
     Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
-    Write-Host ""
 }
 
 function prompt { 
@@ -522,4 +533,29 @@ function prompt {
     }
 }
 
-_Main 
+function PostMain {
+    <#
+    .SYNOPSIS
+        Runs after the main initializer function.
+    .DESCRIPTION
+        Runs after the main initializer function. For example, Post-Main runs after the main initializer function.
+    .EXAMPLE
+        Post-Main
+    .OUTPUTS
+        System.String
+    #>
+    # Set the default location to the user's home directory
+    $executionTime = (Measure-Command { _Main }).TotalMilliseconds
+    $foreGround
+    if ($executionTime -gt 1000) {
+        Write-Host "loaded: $executionTime ms" -ForegroundColor Red
+    }
+    elseif ($executionTime -gt 500) {
+        Write-Host "loaded: $executionTime ms" -ForegroundColor DarkGray
+    }
+
+    Write-Host ""
+
+}
+PostMain
+
