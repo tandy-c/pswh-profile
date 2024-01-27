@@ -1,0 +1,7 @@
+.headers ON
+.mode box --wrap 60
+PRAGMA foreign_keys = ON;
+PRAGMA optimize;
+PRAGMA shrink_memory;
+PRAGMA auto_vacuum = '1';
+-- SELECT * FROM sqlite_master WHERE type = 'table';
