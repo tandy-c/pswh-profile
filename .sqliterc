@@ -1,5 +1,4 @@
-.headers ON
-.mode box --wrap 60
+.headers ON.mode box --wrap 60
 PRAGMA foreign_keys = ON;
 PRAGMA optimize;
 PRAGMA shrink_memory;
