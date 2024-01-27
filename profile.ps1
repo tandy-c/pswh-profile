@@ -548,9 +548,11 @@ function PostMain {
     $executionTime = (Measure-Command { _Main }).TotalMilliseconds
     $foreGround
     if ($executionTime -gt 1000) {
+        Write-Host ""
         Write-Host "loaded: $executionTime ms" -ForegroundColor Red
     }
     elseif ($executionTime -gt 500) {
+        Write-Host ""
         Write-Host "loaded: $executionTime ms" -ForegroundColor DarkGray
     }
 
