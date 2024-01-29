@@ -426,7 +426,7 @@ function Open-Sqlite {
         Write-Output "Sqlite not found." -Fore Red
         return
     }
-    Start-Process $sqlite -ArgumentList "-init $(Join-Path (Split-Path -Parent $profile.CurrentUserAllHosts) '.sqliterc')", "$args" -NoNewWindow
+    Start-Process $sqlite -ArgumentList "-init $(Join-Path (Split-Path -Parent $profile.CurrentUserAllHosts) '.sqliterc')", "$args"
 }
 
 
