@@ -499,7 +499,7 @@ function _Main {
     Clear-Host
     Write-Host "PowerShell $($psVersion)" -NoNewline
     if ($psVersion -ge ($newestVersion)) {
-        Write-Host " > https://github.com/tandy-c/pswh-profile" -ForegroundColor DarkGray
+        Write-Host " > https://github.com/johan-cho/pswh-profile" -ForegroundColor DarkGray
     }
     else {
         Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
