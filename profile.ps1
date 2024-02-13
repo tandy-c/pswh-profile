@@ -173,16 +173,18 @@ function Admin {
     $pwrsh = Get-First-Path-If-Exists "$psHome\powershell.exe" "$psHome\pwsh.exe"
     if ($args.Count -gt 0) {
         if ((Get-Command $args[0]).Definition.EndsWith(".exe")) {
-            Start-Process (Get-Command $args[0]).Definition -Verb RunAs -ArgumentList ($args[1..($args.Length - 1)] -join " ") -WorkingDirectory $PWD
+            return Start-Process (Get-Command $args[0]).Definition -Verb RunAs -ArgumentList ($args[1..($args.Length - 1)] -join " ") -WorkingDirectory $PWD
         }
-        else {
-            Start-Process $pwrsh -Verb RunAs -WorkingDirectory $PWD -ArgumentList "-NoExit", "-NoLogo", "-Command & {$args}"
+        if ($isAdmin) {
+            return & $args
         }
+        return Start-Process $pwrsh -Verb RunAs -WorkingDirectory $PWD -ArgumentList "-NoExit", "-NoLogo", "-Command & {$args}"
     }
-    else {
-        Start-Process $pwrsh -Verb runAs -ArgumentList "-NoExit", "-NoLogo"
+    if ($isAdmin) {
+        return Write-Host("Shell is already running as admin.") -Fore Red
+        
     }
-    
+    Start-Process $pwrsh -Verb runAs -ArgumentList "-NoExit", "-NoLogo"
 }
 
 
@@ -366,9 +368,8 @@ function Update-Windows([switch] $restart, [switch] $force) {
         return
     }
     Write-Host('Searching Windows-Updates...') -Fore Green
-    
+    Install-Module -Name PSWindowsUpdate -Force -SkipPublisherCheck
     Import-Module PSWindowsUpdate
-    
     if ($restart -or $force) {
         Get-WindowsUpdate -Install -AcceptAll -AutoReboot | Out-Null
     } 
@@ -451,7 +452,7 @@ function _Main {
         "top"             = "Get-Current-Process";
         "touch"           = "New-Item";
         "which"           = "Get-CommandPath";
-        "whoami"          = "User";
+       
     
         # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20";
     
@@ -468,23 +469,15 @@ function _Main {
         "n"               = "$env:windir\notepad.exe";
         "np"              = "$env:windir\notepad.exe";
         "python3"         = "$env:Programfiles\Python312\python.exe";
-        # "sqlite"          = "$env:Programfiles\WinGet\Links\sqlite3.exe";
         "sqlite"          = "Open-Sqlite";
         "sqlite3"         = "Open-Sqlite";
         "whereis"         = "Get-CommandPath";
         "open"            = "Invoke-Item";
         "run"             = "Invoke-Item";
         "exec"            = "Invoke-Item";
-        # "exit"            = "Exit-PSSession";
-        
         "Upgrade-Drivers" = "Update-Drivers";
         "Upgrade-Windows" = "Update-Windows";
-        
-    
-        # "copy"            = "Set-Clipboard";
-        # "dir /s /b" = "Get-All-ChildItem";
     }
-    
     foreach ($kv in $aliasHash.GetEnumerator()) {
         # add a check here to say if .exe path or command is valid
         if ("Set-Location HKCU:".EndsWith(".exe") -and !(Test-Path "Set-Location HKCU:")) {
@@ -492,24 +485,30 @@ function _Main {
         }
         Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)"
     }
-
     $psVersion = $PSVersionTable.PSVersion.ToString()
-    $newestVersion = Get-LatestPowerShellVersion
+    if ((Get-Random -Maximum 100) -le 10) {
+        $newestVersion = Get-LatestPowerShellVersion
 
-    Clear-Host
-    Write-Host "PowerShell $($psVersion)" -NoNewline
-    if ($psVersion -ge ($newestVersion)) {
-        Write-Host " > https://github.com/johan-cho/pswh-profile" -ForegroundColor DarkGray
+        Clear-Host
+        Write-Host "PowerShell $($psVersion)" -NoNewline
+        if ($psVersion -ge ($newestVersion)) {
+            Write-Host " > https://github.com/johan-cho/pswh-profile" -ForegroundColor DarkGray
+        }
+        else {
+            Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "https://github.com/powershell/powershell/releases" -ForegroundColor DarkGray
+            Write-Host "sudo winget upgrade --id Microsoft.Powershell" -ForegroundColor DarkGray
+        }
     }
     else {
-        Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "https://github.com/powershell/powershell/releases" -ForegroundColor DarkGray
-        Write-Host "sudo winget upgrade --id Microsoft.Powershell" -ForegroundColor DarkGray
+        Clear-Host
+        Write-Host "PowerShell $($psVersion)" -NoNewline
+        Write-Host " > https://github.com/johan-cho/pswh-profile" -ForegroundColor DarkGray
     }
-
     Write-Host ""
-    Write-Host "$(HOSTNAME.EXE) @ $($isAdmin ? "$([char]27)[1;31madmin " : '')$(User)$([char]27)[0m" -ForegroundColor DarkGray
+    Write-Host "$($isAdmin ? "$([char]27)[1;31m" : '')$(User)$([char]27)[0m" -NoNewline -ForegroundColor DarkGray
+    Write-Host " @ $(HOSTNAME.EXE)" -ForegroundColor DarkGray
     Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
 }
 
