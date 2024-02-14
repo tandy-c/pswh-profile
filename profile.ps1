@@ -452,20 +452,9 @@ function _Main {
         "top"             = "Get-Current-Process";
         "touch"           = "New-Item";
         "which"           = "Get-CommandPath";
-       
-    
-        # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20";
-    
-        "md5"             = "Get-FileHash -Algorithm MD5";
-        "sha1"            = "Get-FileHash -Algorithm SHA1";
-        "sha256"          = "Get-FileHash -Algorithm SHA256";
-        
-        "HKLM:"           = "Set-Location HKLM:";
-        "HKCU:"           = "Set-Location HKCU:";
-        "Env:"            = "Set-Location Env:";
-    
+        "source"          = "Invoke-Expression";
+        # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20"
         "dirs"            = "Get-All-ChildItem";
-        
         "n"               = "$env:windir\notepad.exe";
         "np"              = "$env:windir\notepad.exe";
         "python3"         = "$env:Programfiles\Python312\python.exe";
