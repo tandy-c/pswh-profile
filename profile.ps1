@@ -130,11 +130,9 @@ function Get-All-ChildItem {
         System.String
     #>
     if ($args.Count -gt 0) {
-        Get-ChildItem -Recurse -Include "$args" | Foreach-Object FullName
+        return Get-ChildItem -Recurse -Include "$args" | Foreach-Object FullName
     }
-    else {
-        Get-ChildItem -Recurse | Foreach-Object FullName
-    }
+    return Get-ChildItem -Recurse | Foreach-Object FullName
 }
 
 # Does the equivlent of top in Linux/Unix.
@@ -182,7 +180,6 @@ function Admin {
     }
     if ($isAdmin) {
         return Write-Host("Shell is already running as admin.") -Fore Red
-        
     }
     Start-Process $pwrsh -Verb runAs -ArgumentList "-NoExit", "-NoLogo"
 }
@@ -444,8 +441,6 @@ function _Main {
     if ($isAdmin) {
         $Host.UI.RawUI.WindowTitle += " - Admin"
     }
-
-
     $aliasHash = @{
         "su"              = "Admin";
         "sudo"            = "Admin";
