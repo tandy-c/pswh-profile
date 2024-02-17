@@ -431,6 +431,34 @@ function Open-Sqlite {
 }
 
 
+
+function Path {
+    <#
+    .SYNOPSIS
+        Displays path variables formatted
+    .DESCRIPTION
+        Formats the output of $env:path to be more readable.
+    #>
+
+    $env:path -split ";" | ForEach-Object { Write-Host $_ -ForegroundColor DarkGray }
+}
+
+
+function reload {
+    <#
+    .SYNOPSIS
+        Reloads the profile.
+    .DESCRIPTION
+        Reloads the profile. For example, reload reloads the profile.
+    .EXAMPLE
+        reload
+    .OUTPUTS
+        System.null
+    #>
+    . $profile.CurrentUserAllHosts
+}
+
+
 function _Main {
     <#
     .SYNOPSIS
@@ -477,6 +505,8 @@ function _Main {
         "exec"            = "Invoke-Item";
         "Upgrade-Drivers" = "Update-Drivers";
         "Upgrade-Windows" = "Update-Windows";
+        "refresh"         = "reload";
+        "sysinfo"         = "Get-ComputerInfo";
     }
     foreach ($kv in $aliasHash.GetEnumerator()) {
         # add a check here to say if .exe path or command is valid
@@ -486,13 +516,14 @@ function _Main {
         Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)"
     }
     $psVersion = $PSVersionTable.PSVersion.ToString()
+    $cimInstance = Get-CimInstance -ClassName Win32_ComputerSystem
     if ((Get-Random -Maximum 100) -le 10) {
         $newestVersion = Get-LatestPowerShellVersion
 
         Clear-Host
         Write-Host "PowerShell $($psVersion)" -NoNewline
         if ($psVersion -ge ($newestVersion)) {
-            Write-Host " > https://github.com/johan-cho/pswh-profile" -ForegroundColor DarkGray
+            Write-Host " > $($cimInstance.Manufacturer.ToLower()) $($cimInstance.Model)" -ForegroundColor DarkGray
         }
         else {
             Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
@@ -504,11 +535,11 @@ function _Main {
     else {
         Clear-Host
         Write-Host "PowerShell $($psVersion)" -NoNewline
-        Write-Host " > https://github.com/johan-cho/pswh-profile" -ForegroundColor DarkGray
+        Write-Host " > $($cimInstance.Manufacturer.ToLower()) $($cimInstance.Model)" -ForegroundColor DarkGray
     }
     Write-Host ""
     Write-Host "$($isAdmin ? "$([char]27)[1;31m" : '')$(User)$([char]27)[0m" -NoNewline -ForegroundColor DarkGray
-    Write-Host " @ $(HOSTNAME.EXE)" -ForegroundColor DarkGray
+    Write-Host "@$(HOSTNAME.EXE)" -ForegroundColor DarkGray
     Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
 }
 
