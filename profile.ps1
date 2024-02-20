@@ -503,11 +503,10 @@ function _Main {
     $cimInstance = Get-CimInstance -ClassName Win32_ComputerSystem
     if ((Get-Random -Maximum 100) -le 10) {
         $newestVersion = Get-LatestPowerShellVersion
-
         Clear-Host
         Write-Host "PowerShell $($psVersion)" -NoNewline
         if ($psVersion -ge ($newestVersion)) {
-            Write-Host " > $($cimInstance.Manufacturer.ToLower()) $($cimInstance.Model)" -ForegroundColor DarkGray
+            Write-Host " > $((Get-Culture).TextInfo.ToTitleCase($cimInstance.Manufacturer)) $($cimInstance.Model)" -ForegroundColor DarkGray
         }
         else {
             Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
@@ -519,7 +518,7 @@ function _Main {
     else {
         Clear-Host
         Write-Host "PowerShell $($psVersion)" -NoNewline
-        Write-Host " > $($cimInstance.Manufacturer.ToLower()) $($cimInstance.Model)" -ForegroundColor DarkGray
+        Write-Host " > $((Get-Culture).TextInfo.ToTitleCase($cimInstance.Manufacturer)) $($cimInstance.Model)" -ForegroundColor DarkGray
     }
     Write-Host ""
     Write-Host "$($isAdmin ? "$([char]27)[1;31m" : '')$(User)$([char]27)[0m" -NoNewline -ForegroundColor DarkGray
