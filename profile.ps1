@@ -5,7 +5,6 @@
 #>
 
 # Find out if the current user identity is elevated (has admin rights)
-$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 function UnixTimeStamp {
     <#
@@ -169,6 +168,7 @@ function Admin {
         System.String
     #>
     $pwrsh = Get-First-Path-If-Exists "$psHome\powershell.exe" "$psHome\pwsh.exe"
+    $isAdmin = isadmin
     if ($args.Count -gt 0) {
         if ((Get-Command $args[0]).Definition.EndsWith(".exe")) {
             return Start-Process (Get-Command $args[0]).Definition -Verb RunAs -ArgumentList ($args[1..($args.Length - 1)] -join " ") -WorkingDirectory $PWD
@@ -261,6 +261,8 @@ function Update-Drivers([switch] $restart, [switch] $force) {
     .OUTPUTS
         System.null
     #>
+
+    $isAdmin = isadmin
 
     if ($force -and !($isAdmin)) {
         Admin "Update-Drivers"
@@ -355,7 +357,7 @@ function Update-Windows([switch] $restart, [switch] $force) {
     
     # Parameter help description
 
-
+    $isAdmin = isadmin
     if ($force -and !($isAdmin)) {
         Admin "Update-Windows"
         return
@@ -405,7 +407,7 @@ Function isadmin {
     .OUTPUTS
         System.String
     #>
-    $isAdmin
+    return ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
 function Open-Sqlite {
@@ -466,6 +468,8 @@ function _Main {
 
     # Set up the window title to show the PowerShell version and whether it's elevated
     $Host.UI.RawUI.WindowTitle = "PowerShell $($psVersion)"
+    $isAdmin = isadmin
+
     if ($isAdmin) {
         $Host.UI.RawUI.WindowTitle += " - Admin"
     }
@@ -537,6 +541,8 @@ function prompt {
     .OUTPUTS
         System.String
     #>
+    $isAdmin = isadmin
+
     if ($isAdmin) {
         $ESC = [char]27
         "$ESC[1;31mPS $ESC[0m$($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1))"
