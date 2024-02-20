@@ -506,7 +506,7 @@ function _Main {
         Clear-Host
         Write-Host "PowerShell $($psVersion)" -NoNewline
         if ($psVersion -ge ($newestVersion)) {
-            Write-Host " > $((Get-Culture).TextInfo.ToTitleCase($cimInstance.Manufacturer)) $($cimInstance.Model)" -ForegroundColor DarkGray
+            Write-Host " > $((Get-Culture).TextInfo.ToTitleCase($cimInstance.Manufacturer.ToLower())) $($cimInstance.Model)" -ForegroundColor DarkGray
         }
         else {
             Write-Host " > PowerShell $newestVersion is available" -ForegroundColor Green
@@ -518,7 +518,7 @@ function _Main {
     else {
         Clear-Host
         Write-Host "PowerShell $($psVersion)" -NoNewline
-        Write-Host " > $((Get-Culture).TextInfo.ToTitleCase($cimInstance.Manufacturer)) $($cimInstance.Model)" -ForegroundColor DarkGray
+        Write-Host " > $((Get-Culture).TextInfo.ToTitleCase($cimInstance.Manufacturer.ToLower())) $($cimInstance.Model)" -ForegroundColor DarkGray
     }
     Write-Host ""
     Write-Host "$($isAdmin ? "$([char]27)[1;31m" : '')$(User)$([char]27)[0m" -NoNewline -ForegroundColor DarkGray
