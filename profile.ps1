@@ -543,6 +543,8 @@ function _Main {
         "profile"         = "Edit-Profile";
         "cdmkdir"         = "New-Directory-Set-Location";
         "mkdircd"         = "New-Directory-Set-Location";
+        "unzip"           = "Expand-Archive";
+        "zip"             = "Compress-Archive";
     }
     foreach ($kv in $aliasHash.GetEnumerator()) {
         # add a check here to say if .exe path or command is valid
