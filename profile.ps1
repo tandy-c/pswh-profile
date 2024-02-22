@@ -99,6 +99,10 @@ function Get-Ip([switch]$Copy) {
     return $ip
 }
 
+function Write-HostCenter { 
+    param($Message) Write-Host ("{0}{1}" -f (' ' * (([Math]::Max(0, $Host.UI.RawUI.BufferSize.Width / 2) - [Math]::Floor($Message.Length / 2)))), $Message) 
+}
+
 function Get-First-Path-If-Exists {
     <#
     .SYNOPSIS
@@ -241,9 +245,13 @@ function Edit-Profile {
     if ($host.Name -match "ise") {
         $psISE.CurrentPowerShellTab.Files.Add($profile.CurrentUserAllHosts)
     }
-    else {
-        Invoke-Item $profile.CurrentUserAllHosts
+    try {
+        code (get-item $profile.CurrentUserAllHosts).Directory
     }
+    catch {
+        Invoke-Item $profile.CurrentUserAllHosts
+    } 
+
 }
 
 function Update-Drivers([switch] $restart, [switch] $force) {
@@ -379,6 +387,26 @@ function Update-Windows([switch] $restart, [switch] $force) {
 }
 
 
+
+function New-Directory-Set-Location {
+    <#
+    .SYNOPSIS
+        Creates a directory and sets the location to it.
+    .DESCRIPTION
+        Creates a directory and sets the location to it. For example, Create-Directory-Set-Location "C:\Users\Public\Documents" is mkdir "C:\Users\Public\Documents" && cd "C:\Users\Public\Documents"
+    .EXAMPLE
+        Create-Directory-Set-Location "C:\Users\Public\Documents"
+    .OUTPUTS
+        System.null
+    #>
+    $directory = $args[0]
+    New-Item -ItemType Directory -Path $directory
+    Set-Location $directory
+    Write-Host ""
+    Write-Host "Set location to $directory" -Fore Green
+}
+
+
 function Update-All {
     <#
     .SYNOPSIS
@@ -443,7 +471,7 @@ function Path {
 }
 
 
-function reload {
+function Reload {
     <#
     .SYNOPSIS
         Reloads the profile.
@@ -455,6 +483,23 @@ function reload {
         System.null
     #>
     . $profile.CurrentUserAllHosts
+}
+
+function Update-Profile {
+    <#
+    .SYNOPSIS
+        Updates the profile.
+    .DESCRIPTION
+        Updates the profile. For example, Update-Profile updates the profile.
+    .EXAMPLE
+        Update-Profile
+    .OUTPUTS
+        System.null
+    #>
+    $currentLocation = $PWD
+    Set-Location (Get-Item $profile.CurrentUserAllHosts).Directory
+    git pull
+    Set-Location $currentLocation
 }
 
 
@@ -493,8 +538,11 @@ function _Main {
         "exec"            = "Invoke-Item";
         "Upgrade-Drivers" = "Update-Drivers";
         "Upgrade-Windows" = "Update-Windows";
-        "refresh"         = "reload";
+        "refresh"         = "Reload";
         "sysinfo"         = "Get-ComputerInfo";
+        "profile"         = "Edit-Profile";
+        "cdmkdir"         = "New-Directory-Set-Location";
+        "mkdircd"         = "New-Directory-Set-Location";
     }
     foreach ($kv in $aliasHash.GetEnumerator()) {
         # add a check here to say if .exe path or command is valid
@@ -507,6 +555,7 @@ function _Main {
     $cimInstance = Get-CimInstance -ClassName Win32_ComputerSystem
     if ((Get-Random -Maximum 100) -le 10) {
         $newestVersion = Get-LatestPowerShellVersion
+        Update-Profile
         Clear-Host
         Write-Host "PowerShell $($psVersion)" -NoNewline
         if ($psVersion -ge ($newestVersion)) {
@@ -529,6 +578,8 @@ function _Main {
     Write-Host "@$(HOSTNAME.EXE)" -ForegroundColor DarkGray
     Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
 }
+
+
 
 function prompt { 
     <#
@@ -579,4 +630,3 @@ function PostMain {
 
 }
 PostMain
-
