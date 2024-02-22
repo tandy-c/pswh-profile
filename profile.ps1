@@ -576,7 +576,7 @@ function _Main {
     Write-Host ""
     Write-Host "$($isAdmin ? "$([char]27)[1;31m" : '')$(User)$([char]27)[0m" -NoNewline -ForegroundColor DarkGray
     Write-Host "@$(HOSTNAME.EXE)" -ForegroundColor DarkGray
-    Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray
+    Write-Host "$((Get-Date -UFormat "%m/%d/%Y %I:%M:%S %p").ToLower())" -ForegroundColor DarkGray -NoNewline
 }
 
 
@@ -616,17 +616,20 @@ function PostMain {
     #>
     # Set the default location to the user's home directory
     $executionTime = (Measure-Command { _Main }).TotalMilliseconds
-    $foreGround
+    $message = " ($([Math]::Floor($executionTime)) ms)"
+    
     if ($executionTime -gt 1000) {
-        Write-Host ""
-        Write-Host "loaded: $executionTime ms" -ForegroundColor Red
+        Write-Host $message -ForegroundColor Red
     }
     elseif ($executionTime -gt 500) {
+        Write-Host $message -ForegroundColor DarkGray
+    }
+    else {
         Write-Host ""
-        Write-Host "loaded: $executionTime ms" -ForegroundColor DarkGray
     }
 
     Write-Host ""
+
 
 }
 PostMain
