@@ -21,21 +21,25 @@ function _Main {
         $Host.UI.RawUI.WindowTitle += " - Admin"
     }
     $aliasHash = @{
+        #unix
         "sudo"            = "Admin";
         "top"             = "Get-Current-Process";
         "touch"           = "New-Item";
         "which"           = "Get-CommandPath";
         "source"          = "Invoke-Expression";
         "grep"            = "Select-String";
-        "getpid"          = " & {Get-Process -Id $PID}";
-        # "htop" = "Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20"
+        "getpid"          = "{Get-Process -Id $PID}";
+        "htop"            = "{Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20}"
+        "unzip"           = "Expand-Archive";
+        "zip"             = "Compress-Archive";
+        #windows
         "dirs"            = "Get-All-ChildItem";
         "n"               = "$env:windir\notepad.exe";
         "np"              = "$env:windir\notepad.exe";
+        #me
         "python3"         = "$env:Programfiles\Python312\python.exe";
         "sqlite"          = "Open-Sqlite";
         "sqlite3"         = "Open-Sqlite";
-        "whereis"         = "Get-CommandPath";
         "open"            = "Invoke-Item";
         "run"             = "Invoke-Item";
         "exec"            = "Invoke-Item";
@@ -47,15 +51,18 @@ function _Main {
         "profile"         = "Edit-Profile";
         "cdmkdir"         = "New-Directory-Set-Location";
         "mkdircd"         = "New-Directory-Set-Location";
-        "unzip"           = "Expand-Archive";
-        "zip"             = "Compress-Archive";
+     
     }
     foreach ($kv in $aliasHash.GetEnumerator()) {
         # add a check here to say if .exe path or command is valid
-        if ("Set-Location HKCU:".EndsWith(".exe") -and !(Test-Path "Set-Location HKCU:")) {
+        if ($kv.Value.EndsWith(".exe") -and !(Test-Path $kv.Value)) {
             continue
         }
-        Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)"
+        if ($kv.Value.StartsWith("{") -and $kv.Value.EndsWith("}")) {
+            New-Item -Path "function:\" -Name "global:$($kv.Key)" -Value $($kv.Value.ToString().Trim("}", "{")) -Force  | Out-Null 
+            continue
+        }
+        Set-Alias -Name $kv.Name -Value $kv.Value -Scope Global -Description "Alias for $($kv.Value)" -Force | Out-Null 
     }
     $psVersion = $PSVersionTable.PSVersion.ToString()
     $cimInstance = Get-CimInstance -ClassName Win32_ComputerSystem

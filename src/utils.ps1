@@ -246,3 +246,24 @@ function Path {
 
 
 
+function Set-DynamicAlias {
+
+    <#
+    .SYNOPSIS
+        Sets a dynamic alias.
+    .DESCRIPTION
+        Sets a dynamic alias. For example, Set-DynamicAlias "g" "git" is g is git.
+    .EXAMPLE
+        Set-DynamicAlias s1 'Write-Host "sample 1"'
+    .OUTPUTS
+        System.null
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true, Position = 0)]
+        [String]$Alias,
+        [Parameter(Mandatory = $true, Position = 1)]
+        [String]$Command
+    )
+    New-Item -Path function:\ -Name "global:$Alias" -Value "$Command `$args" -Force | Out-Null
+}
