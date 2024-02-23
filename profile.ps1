@@ -32,7 +32,7 @@ function _Main {
         "htop"            = "{Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20}"
         "unzip"           = "Expand-Archive";
         "zip"             = "Compress-Archive";
-        "apt"             = "$env:AppData\Microsoft\WindowsApps\winget.exe";
+        "apt"             = "$env:LocalAppData\Microsoft\WindowsApps\winget.exe";
         
         #windows
         "dirs"            = "Get-All-ChildItem";
