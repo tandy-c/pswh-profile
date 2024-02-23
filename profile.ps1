@@ -32,8 +32,6 @@ function _Main {
         "unzip"           = "Expand-Archive";
         "zip"             = "Compress-Archive";
         "apt"             = "$env:LocalAppData\Microsoft\WindowsApps\winget.exe";
-        
-        
         #windows
         "dirs"            = "Get-All-ChildItem";
         "n"               = "$env:windir\notepad.exe";
