@@ -26,13 +26,13 @@ function _Main {
         "top"             = "Get-Current-Process";
         "touch"           = "New-Item";
         "which"           = "Get-CommandPath";
-        "source"          = "Invoke-Expression";
         "grep"            = "Select-String";
         "getpid"          = "{Get-Process -Id $PID}";
         "htop"            = "{Get-Process | Sort-Object -Property CPU -Descending | Select-Object -First 20}"
         "unzip"           = "Expand-Archive";
         "zip"             = "Compress-Archive";
         "apt"             = "$env:LocalAppData\Microsoft\WindowsApps\winget.exe";
+        
         
         #windows
         "dirs"            = "Get-All-ChildItem";

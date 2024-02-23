@@ -267,3 +267,17 @@ function Set-DynamicAlias {
     )
     New-Item -Path function:\ -Name "global:$Alias" -Value "$Command `$args" -Force | Out-Null
 }
+
+function Source {
+    <#
+    .SYNOPSIS
+        Sources a file.
+    .DESCRIPTION
+        Sources a file. For example, Source "C:\Users\Public\Documents\profile.ps1" is source "C:\Users\Public\Documents\profile.ps1"
+    .EXAMPLE
+        Source "C:\Users\Public\Documents\profile.ps1"
+    .OUTPUTS
+        System.null
+    #>
+    . $args
+}
