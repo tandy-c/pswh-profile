@@ -60,37 +60,6 @@ function Get-LatestPowerShellVersion {
     }
 }
 
-
-
-function ?? {
-    <#
-    .SYNOPSIS
-        Returns the last truthy value.
-    .DESCRIPTION
-        Returns the last truthy value. For example, ?? $a $b $c is the last truthy value.
-    .EXAMPLE
-        ?? $a $b $c
-    .OUTPUTS
-        Any
-    #>
-
-    param(
-        [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true, Position = 0)]
-        [psobject[]]$InputObject,
-  
-        [switch]$Truthy
-    )
-  
-    foreach ($object in $InputObject) {
-        if ($Truthy -and $object) {
-            return $object
-        }
-        elseif ($null -ne $object) {
-            return $object
-        }
-    }
-}
-
 function Get-Ip([switch]$Copy) {
     <#
     .SYNOPSIS
