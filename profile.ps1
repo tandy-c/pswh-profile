@@ -32,6 +32,7 @@ function _Main {
         "unzip"           = "Expand-Archive";
         "zip"             = "Compress-Archive";
         "apt"             = "$env:LocalAppData\Microsoft\WindowsApps\winget.exe";
+        "reboot"          = "Restart-Computer";
         #windows
         "dirs"            = "Get-All-ChildItem";
         "n"               = "$env:windir\notepad.exe";
@@ -51,6 +52,7 @@ function _Main {
         "profile"         = "Edit-Profile";
         "cdmkdir"         = "New-Directory-Set-Location";
         "mkdircd"         = "New-Directory-Set-Location";
+        "rename"          = "Rename-Item";
      
     }
     foreach ($kv in $aliasHash.GetEnumerator()) {
