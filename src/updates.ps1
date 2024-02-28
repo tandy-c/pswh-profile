@@ -34,6 +34,8 @@ function Update-Drivers([switch] $restart, [switch] $force) {
         return
     }
 
+    # you think i know what any of this shit does? lol
+
     $UpdateSvc = New-Object -ComObject Microsoft.Update.ServiceManager
     $UpdateSvc.AddService2("7971f918-a847-4430-9279-4a52d1efe18d", 7, "")
     $Session = New-Object -ComObject Microsoft.Update.Session
