@@ -139,11 +139,9 @@ function prompt {
 
     if (isadmin) {
         $ESC = [char]27
-        "$ESC[1;31mPS $ESC[0m$($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1))"
+        return "$ESC[1;31mPS $ESC[0m$($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1))"
     }
-    else {
-        "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "  
-    }
+    return "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "  
 }
 
 PostMain
