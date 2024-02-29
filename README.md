@@ -1,4 +1,4 @@
-# johan's custom powershell profile
+# custom powershell profile
 
 custom powershell profile with some useful functions and aliases for my personal use. on github for easy access and sharing across work and school computers.
 
