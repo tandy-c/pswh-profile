@@ -33,6 +33,7 @@ function _Main {
         "zip"             = "Compress-Archive";
         "apt"             = "$env:LocalAppData\Microsoft\WindowsApps\winget.exe";
         "reboot"          = "Restart-Computer";
+        "curl"            = "Invoke-WebRequest";
         #windows
         "dirs"            = "Get-All-ChildItem";
         "n"               = "$env:windir\notepad.exe";
