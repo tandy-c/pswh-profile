@@ -22,17 +22,22 @@ function Update-Drivers([switch] $restart, [switch] $force) {
         System.null
     #>
 
-    $isAdmin = isadmin
+    try {
+        $isAdmin = isadmin -ErrorAction Stop
+    }
+    catch {
+        $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    }
 
     if ($force -and !($isAdmin)) {
         Admin "Update-Drivers"
         return
     }
-
     if (!($isAdmin)) {
         Write-Host('Please run this command as admin!') -Fore Red
         return
     }
+    
 
     # you think i know what any of this shit does? lol
 
@@ -99,7 +104,12 @@ function Update-Windows([switch] $restart, [switch] $force) {
     
     # Parameter help description
 
-    $isAdmin = isadmin
+    try {
+        $isAdmin = isadmin -ErrorAction Stop
+    }
+    catch {
+        $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    }
     if ($force -and !($isAdmin)) {
         Admin "Update-Windows"
         return
