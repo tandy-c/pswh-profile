@@ -54,6 +54,7 @@ function _Main {
         "cdmkdir"         = "New-Directory-Set-Location";
         "mkdircd"         = "New-Directory-Set-Location";
         "rename"          = "Rename-Item";
+        "path"            = "Show-Path";
      
     }
     foreach ($kv in $aliasHash.GetEnumerator()) {

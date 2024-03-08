@@ -22,3 +22,26 @@ function Open-Sqlite {
     Start-Process $sqlite -ArgumentList "-init $(Join-Path (Split-Path -Parent $profile.CurrentUserAllHosts) '.sqliterc')", "$args"
 }
 
+function Eject {
+    <#
+    .SYNOPSIS
+        Ejects a drive.
+    .PARAMETER driveLetter
+        string: The drive letter to eject.
+    .PARAMETER namespace
+        int: The namespace to use.
+    .EXAMPLE
+        Eject "D:"
+    .OUTPUTS
+        System.null
+    #>
+    # Parameter help description
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string]$driveLetter,
+        [Parameter(Mandatory = $false)]
+        [int]$namespace = 17
+    )
+    $driveEject = New-Object -comObject Shell.Application
+    $driveEject.Namespace($namespace).ParseName($driveLetter).InvokeVerb("Eject")
+}

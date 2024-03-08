@@ -202,7 +202,7 @@ function New-Directory-Set-Location {
 }
 
 
-function Path {
+function Show-Path {
     <#
     .SYNOPSIS
         Displays path variables formatted
@@ -210,9 +210,22 @@ function Path {
         Formats the output of $env:path to be more readable.
     #>
 
-    $env:path -split ";" | ForEach-Object { Write-Host $_ -ForegroundColor DarkGray }
+    $env:path -split ";" | ForEach-Object { 
+        if (!(Test-Path $_)) {
+            Write-Host $_ -ForegroundColor DarkRed
+        }
+        elseif ($_ -match "C:\\Users\\$env:username") {
+            Write-Host $_ -ForegroundColor DarkGray
+        }
+        elseif ($_ -match "C:\\WINDOWS") {
+            Write-Host $_ -ForegroundColor DarkBlue
+        }
+        else {
+            # Write-Host $_ -ForegroundColor Red
+            Write-Host $_ -ForegroundColor White
+        }
+    }
 }
-
 
 
 function Set-DynamicAlias {
