@@ -43,5 +43,13 @@ function Eject {
         [int]$namespace = 17
     )
     $driveEject = New-Object -comObject Shell.Application
-    $driveEject.Namespace($namespace).ParseName($driveLetter).InvokeVerb("Eject")
+    try {
+        $driveEject.Namespace($namespace).ParseName($driveLetter).InvokeVerb("Eject")
+    }
+    catch [System.Management.Automation.RuntimeException] {
+        Write-Host "Error: $_ Is the Drive in?" -ForegroundColor Red
+    }
+    catch {
+        Write-Host "Error: $_" -ForegroundColor Red
+    }
 }
