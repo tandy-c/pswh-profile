@@ -34,6 +34,7 @@ function _Main {
         "apt"             = "$env:LocalAppData\Microsoft\WindowsApps\winget.exe";
         "reboot"          = "Restart-Computer";
         "curl"            = "Invoke-WebRequest";
+        "wait"            = "Start-Sleep";
         #windows
         "dirs"            = "Get-All-ChildItem";
         "n"               = "$env:windir\notepad.exe";
