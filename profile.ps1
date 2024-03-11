@@ -55,6 +55,8 @@ function _Main {
         "mkdircd"         = "New-Directory-Set-Location";
         "rename"          = "Rename-Item";
         "path"            = "Show-Path";
+        "rn"              = "Rename-Item";
+        "remove"          = "Remove-Item";
      
     }
     foreach ($kv in $aliasHash.GetEnumerator()) {
