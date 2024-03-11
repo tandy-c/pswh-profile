@@ -21,7 +21,7 @@ function Admin {
     $pwrsh = Get-First-Path-If-Exists "$psHome\powershell.exe" "$psHome\pwsh.exe"
     $isAdmin = isadmin
     if ($args.Count -gt 0) {
-        if ((Get-Command $args[0]).Definition.EndsWith(".exe")) {
+        if (Test-Path (Get-Command $args[0]).Definition) {
             return Start-Process (Get-Command $args[0]).Definition -Verb RunAs -ArgumentList ($args[1..($args.Length - 1)] -join " ") -WorkingDirectory $PWD
         }
         if ($isAdmin) {
