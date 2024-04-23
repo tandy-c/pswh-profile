@@ -33,7 +33,7 @@ function _Main {
         "zip"             = "Compress-Archive";
         "apt"             = "$env:LocalAppData\Microsoft\WindowsApps\winget.exe";
         "reboot"          = "Restart-Computer";
-        "curl"            = "Invoke-WebRequest";
+        # "curl"            = "Invoke-WebRequest";
         "wait"            = "Start-Sleep";
         #windows
         "dirs"            = "Get-All-ChildItem";
