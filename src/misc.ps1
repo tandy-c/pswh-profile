@@ -14,7 +14,7 @@ function Open-Sqlite {
     .OUTPUTS
         System.null
     #>
-    $sqlite = Get-First-Path-If-Exists "$env:Programfiles\WinGet\Links\sqlite3.exe" "$env:Programfiles (x86)\WinGet\Links\sqlite3.exe" "$env:localappdata\Microsoft\WinGet\Packages\SQLite.SQLite_Microsoft.Winget.Source_8wekyb3d8bbwe"
+    $sqlite = Get-First-Path-If-Exists "$env:Programfiles\WinGet\Links\sqlite3.exe" "$env:Programfiles (x86)\WinGet\Links\sqlite3.exe" "$env:localappdata\Microsoft\WinGet\Packages\SQLite.SQLite_Microsoft.Winget.Source_8wekyb3d8bbwe\sqlite3.exe"
     if (!($sqlite)) {
         Write-Output "Sqlite not found." -Fore Red
         return
