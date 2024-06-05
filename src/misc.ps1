@@ -19,7 +19,13 @@ function Open-Sqlite {
         Write-Output "Sqlite not found." -Fore Red
         return
     }
-    Start-Process $sqlite -ArgumentList "-init $(Join-Path (Split-Path -Parent $profile.CurrentUserAllHosts) '.sqliterc')", "$args"
+    $rcfile = Join-Path (Split-Path -Parent $profile.CurrentUserAllHosts) '.sqliterc'
+    if (!(Test-Path $rcfile)) {
+        Start-Process $sqlite -ArgumentList $args
+    }
+    else {
+        Start-Process $sqlite -ArgumentList "-init $rcfile", "$args"
+    }
 }
 
 function Eject {
