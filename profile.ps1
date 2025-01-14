@@ -22,7 +22,6 @@ function _Main {
     }
     $aliasHash = @{
         #unix
-        "sudo"            = "Admin";
         "top"             = "Get-Current-Process";
         "touch"           = "New-Item";
         "which"           = "Get-CommandPath";
